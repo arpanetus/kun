@@ -1,0 +1,7 @@
+github.com/kelvins/sunrisesunset v0.0.0-20210220141756-39fa1bd816d5 h1:ouekCqYkMw4QXFCaLyYqjBe99/MUW4Qf3DJhCRh1G18=
+github.com/kelvins/sunrisesunset v0.0.0-20210220141756-39fa1bd816d5/go.mod h1:3oZ7G+fb8Z8KF+KPHxeDO3GWpEjgvk/f+d/yaxmDRT4=
+github.com/zsefvlol/timezonemapper v1.0.0 h1:HXqkOzf01gXYh2nDQcDSROikFgMaximnhE8BY9SyF6E=
+github.com/zsefvlol/timezonemapper v1.0.0/go.mod h1:cVUCOLEmc/VvOMusEhpd2G/UBtadL26ZVz2syODXDoQ=
+gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
+gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b h1:h8qDotaEPuJATrMmW04NCwg7v22aHH28wwpauUhK9Oo=
+gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
