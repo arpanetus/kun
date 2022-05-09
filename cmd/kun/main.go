@@ -2,83 +2,98 @@ package main
 
 import (
 	"flag"
-	"log"
-	"github.com/arpanetus/kun/pkg/util"
 	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
+
+	"github.com/arpanetus/kun/pkg/util"
 )
-
-
-
 
 const usage = `kun v0.0.1 - a command line tool for getting sunrise/sunset times
 Usage:
 	- init: initializes kun config file
 	- issundown: get "true" or "false" value whether sun is down right now or not
-	- risesetpair: get sunrise and sunset time pair like "sunrise sunset"
-`
+	- risesetpair: get sunrise and sunset time pair like "sunrise sunset"`
 
-func printHelp() {
-	fmt.Println(usage)
+var (
+	debugLogger   = log.New(os.Stdout, "DEBUG: ", log.Ldate|log.Ltime|log.Lshortfile)
+	defaultLogger = log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
+	errLogger     = log.New(os.Stderr, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
+)
+
+var (
+	// init flag
+	initialize = flag.Bool("init", false, "initialize kun config file")
+	// get issundown flag
+	issundown = flag.Bool("down", false, "get whether sun is down")
+	// get risesetpair flag
+	risesetpair = flag.Bool("rs", false, "get sunrise and sunset time pair in HH:MM:SS format")
+	// verbose
+	verbose = flag.Bool("v", false, "verbose output")
+)
+
+func init() {
+	flag.Parse()
+	if !*verbose {
+		debugLogger.SetOutput(ioutil.Discard)
+	}
 }
 
-
 func main() {
-	// init flag
-	initialize := flag.Bool("init", false, "initialize kun config file")
-	// get issundown flag
-	issundown := flag.Bool("issundown", false, "issundown")
-	// get risesetpair flag
-	risesetpair := flag.Bool("risesetpair", false, "risesetpair")	
-	// default or help flag
-	help := flag.Bool("help", false, "help")
-
-
-	flag.Parse()
-
 	if (*issundown && *risesetpair) || (*issundown && *initialize) || (*risesetpair && *initialize) {
-		fmt.Println("given options are mutually exclusive")
-		printHelp()
-		
+		errLogger.Fatal(flag.ErrHelp)
+
 		return
 	}
 
-	log.Printf("initialize: %t, issundown: %t, risesetpair: %t", *initialize, *issundown, *risesetpair)
+	debugLogger.Printf("initialize: %t, issundown: %t, risesetpair: %t", *initialize, *issundown, *risesetpair)
 
 	if !*issundown && !*risesetpair && !*initialize {
-		fmt.Println("no option is selected")
-		printHelp()
+		errLogger.Fatal(flag.ErrHelp)
 
-		return
-	}
-
-	if *help {
-		printHelp()
-		
 		return
 	}
 
 	if *initialize {
-		log.Println("initilizing kun config file")
-		util.Config()
+		defaultLogger.Println("initilizing kun config file")
+
+		_, err := util.Config(defaultLogger)
+		if err != nil {
+			errLogger.Fatalf("cannot initialize kun config file: %s", err)
+		}
 
 		return
 	}
 
-	if *issundown {
-		log.Println("checking if sun is down")
-		fmt.Println(util.IsSunDown())
+	c, err := util.Config(debugLogger)
+	if err != nil {
+		errLogger.Fatalf("cannot get kun config file: %s", err)
+	}
 
+	rs := util.NewRiseSet(debugLogger, c)
+
+	if *issundown {
+		debugLogger.Println("checking if sun is down")
+
+		down, err := rs.IsSunDown()
+		if err != nil {
+			errLogger.Println(err)
+		}
+
+		fmt.Println(down)
 		return
 	}
 
 	if *risesetpair {
-		log.Println("getting sunrise and sunset time pair")
-		fmt.Println(util.SunriseSunset())
+		debugLogger.Println("getting sunrise and sunset time pair")
+		sunrise, sunset, err := rs.SunriseSunset()
+		if err != nil {
+			errLogger.Fatal(err)
+		}
+
+		fmt.Println(sunrise, sunset)
 
 		return
 	}
-
-
-
-		
 }
